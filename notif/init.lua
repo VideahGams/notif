@@ -1,31 +1,14 @@
--- This code is licensed under the MIT Open Source License.
-
--- Copyright (c) 2015 Ruairidh Carmichael - ruairidhcarmichael@live.co.uk
-
--- Permission is hereby granted, free of charge, to any person obtaining a copy
--- of this software and associated documentation files (the "Software"), to deal
--- in the Software without restriction, including without limitation the rights
--- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
--- copies of the Software, and to permit persons to whom the Software is
--- furnished to do so, subject to the following conditions:
-
--- The above copyright notice and this permission notice shall be included in
--- all copies or substantial portions of the Software.
-
--- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
--- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
--- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
--- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
--- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
--- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
--- THE SOFTWARE.
-
 local notif = {}
+
+local path = ...
+local tween = require(path .. '.tween')
+
 notif.stack = {}
+notif.tweenstack = {}
 
 local function round(num, idp)
-  local mult = 10^(idp or 0)
-  return math.floor(num * mult + 0.5) / mult
+	local mult = 10^(idp or 0)
+	return math.floor(num * mult + 0.5) / mult
 end
 
 function notif.print(text, duration, color)
@@ -44,9 +27,11 @@ function notif.print(text, duration, color)
 
 	end
 
-	local tbl = {text = text, maxduration = duration, duration = duration, color = color, typ = "print"}
+	local tbl = {text = text, maxduration = duration, duration = duration, color = color, typ = "print", alpha = 0}
 
 	table.insert(notif.stack, tbl)
+
+	table.insert(notif.tweenstack, tween.new(0.5, notif.stack[#notif.stack], {alpha = 255}))
 
 end
 
@@ -65,9 +50,11 @@ function notif.warning(text, duration)
 
 	end
 
-	local tbl = {text = text, maxduration = duration, duration = duration, color = {241, 196, 15}, typ = "warning"}
+	local tbl = {text = text, maxduration = duration, duration = duration, color = {241, 196, 15}, typ = "warning", alpha = 0}
 
 	table.insert(notif.stack, tbl)
+
+	table.insert(notif.tweenstack, tween.new(0.5, notif.stack[#notif.stack], {alpha = 255}))
 
 end
 
@@ -86,9 +73,11 @@ function notif.error(text, duration)
 
 	end
 
-	local tbl = {text = text, maxduration = duration, duration = duration, color = {192, 57, 43}, typ = "error"}
+	local tbl = {text = text, maxduration = duration, duration = duration, color = {192, 57, 43}, typ = "error", alpha = 0}
 
 	table.insert(notif.stack, tbl)
+
+	table.insert(notif.tweenstack, tween.new(0.5, notif.stack[#notif.stack], {alpha = 255}))
 
 end
 
@@ -112,15 +101,15 @@ function notif.draw()
 		y = y - ((height + 5) * (#notif.stack - i))
 
 		-- Color bar --
-		love.graphics.setColor(notif.stack[i].color)
+		love.graphics.setColor(notif.stack[i].color, notif.stack[i].alpha)
 		love.graphics.rectangle("fill", x - 5, y, 5, height)
 
 		love.graphics.setFont(font)
 
-		love.graphics.setColor(255, 255, 255)
+		love.graphics.setColor(255, 255, 255, notif.stack[i].alpha)
 		love.graphics.rectangle("fill", x, y, width, height)
 
-		love.graphics.setColor(0,0,0)
+		love.graphics.setColor(0,0,0, notif.stack[i].alpha)
 		love.graphics.print(text, x, y)
 
 	end
@@ -130,6 +119,8 @@ end
 function notif.update(dt)
 
 	for i=1, #notif.stack do
+
+		notif.tweenstack[i]:update(dt) -- Update the tweens.
 
 		if round(notif.stack[i].duration) <= 0 then -- The duration of the notification is over ...
 
