@@ -150,6 +150,7 @@ function notif.update(dt)
 		if round(notif.stack[i].duration) <= 0 then -- The duration of the notification is over ...
 
 			table.remove(notif.stack, i) -- ... So let's delete the notification.
+			table.remove(notif.tweenstack, i) -- Get rid of the tween whilst we are at it.
 
 			return -- Let's not bother setting the duration, there's not duration to set.
 
