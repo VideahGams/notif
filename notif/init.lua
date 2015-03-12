@@ -111,6 +111,8 @@ function notif.draw()
 
 		love.graphics.setColor(0,0,0, notif.stack[i].alpha)
 		love.graphics.print(text, x, y)
+		
+		love.graphics.setColor(255, 255, 255, 255)
 
 	end
 
