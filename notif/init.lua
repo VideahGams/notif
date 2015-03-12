@@ -123,16 +123,21 @@ function notif.draw()
 		local y = (h - height)
 		y = y - ((height + 5) * (#notif.stack - i))
 
+		local alpha = notif.stack[i].alpha
+		local color = notif.stack[i].color
+
+		color[4] = alpha
+
 		-- Color bar --
-		love.graphics.setColor(notif.stack[i].color, notif.stack[i].alpha)
+		love.graphics.setColor(color)
 		love.graphics.rectangle("fill", x - 5, y, 5, height)
 
 		love.graphics.setFont(font)
 
-		love.graphics.setColor(255, 255, 255, notif.stack[i].alpha)
+		love.graphics.setColor(255, 255, 255, alpha)
 		love.graphics.rectangle("fill", x, y, width, height)
 
-		love.graphics.setColor(0,0,0, notif.stack[i].alpha)
+		love.graphics.setColor(0,0,0, alpha)
 		love.graphics.print(text, x, y)
 		
 		love.graphics.setColor(255, 255, 255, 255)
